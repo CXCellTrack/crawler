@@ -53,4 +53,3 @@ else:
 soup = BS(r_main.content, "html.parser")
 # 找出所有的子论坛
 forum_links = soup.find_all(name='a', href=re.compile('/showforum-.*.aspx'))
-
