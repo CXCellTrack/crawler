@@ -29,10 +29,16 @@ def save_to_file(response):
 ##############################################
 def download(session, url, dirname, picname):
     savepath = os.path.join(dirname, picname)
-    rr = session.get(url, timeout=10, stream=True)
-    with open(savepath, 'wb') as sav:
-        sav.writelines(rr.iter_content(chunk_size=1024 * 10))
-    print picname, 'successfully downloaded!'
+    if os.path.exists(savepath):
+        print picname, 'exists'
+        return
+    try:
+        rr = session.get(url, timeout=5, stream=True)
+        with open(savepath, 'wb') as sav:
+            sav.writelines(rr.iter_content(chunk_size=1024 * 10))
+        print picname, 'successfully downloaded!'
+    except:
+        print picname, 'download failed!'
 
 
 ##############################################
@@ -41,6 +47,7 @@ def download(session, url, dirname, picname):
 def get_forum_links(session, main_url):
     r_main = session.get(url=main_url, timeout=3)
     soup = BS(r_main.content, "html.parser")
+    r_main.close()
     # 找出所有的子论坛
     titlebar = soup.find_all(name='div', class_='titlebar xg2')
     forums = dict()
@@ -55,6 +62,7 @@ def get_forum_links(session, main_url):
 def get_sub_forum_links(session, forum_url):
     rps = session.get(url=forum_url, timeout=3)
     soup = BS(rps.text, "html.parser")
+    rps.close()
     cl_list = soup.find(name='div', class_='main cl list', id='subforum')
     cl_list = cl_list.findChild(class_='fi', recursive=False)
     ## 记录子论坛
@@ -74,6 +82,7 @@ def get_post_links(session, subforum_url, page=1):
     print 'pocess page %d\n' % page
     rps = session.get(url=subforum_url, timeout=3)
     soup = BS(rps.text, "html.parser")
+    rps.close()
     table = soup.find(name='table', attrs={'id':'threadlist'})
     tbodys = table.findChildren(name='tbody', recurse=False)
     ## 找到分割线 {u'class': [u'separation']}
@@ -104,8 +113,16 @@ def get_img_links(session, post_url):
     # 注意贪婪/吝啬模式的使用
     first_table = re.findall(re.compile('<td class="postcontent">.*?(?=<td class="plc">)',
                                         re.DOTALL), r_im.text)
+    r_im.close()
     if len(first_table)==0:
         return []
     soup = BS(first_table[0], "html.parser")
     imgs = soup.find_all(name='img', imageid=re.compile('\d+'), src=re.compile('upload/.+'))
     return [im['src'] for im in imgs]
+
+
+# =========================================================== #
+# 快速回帖（有些内容为回复可见）
+# =========================================================== #
+def quick_reply():
+    pass

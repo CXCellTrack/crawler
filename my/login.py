@@ -28,8 +28,9 @@ def login_in():
     else:
         # 使用session不必每次都加上cookies
         session = requests.Session()
-        session.headers = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                          'Chrome/50.0.2661.102 Safari/537.36'
+        session.headers.update({'User-Agent':
+                                'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) '
+                                'Chrome/50.0.2661.102 Safari/537.36'})
         session.cookies = r_login.cookies
     return session
 
