@@ -15,13 +15,18 @@ from my import utils
 #################################################################
 # 获取会话，登录主界面
 #################################################################
+from my.utils import valid_filename
+
 session = login_in()
-SUBFORUM_NAME = '贴图秀'.decode('utf-8')
-SAVE_HOME_PATH = os.path.join('..', SUBFORUM_NAME)
-if not os.path.exists(SAVE_HOME_PATH):
-    os.mkdir(SAVE_HOME_PATH)
+# 选择爬哪个子论坛
+SUBFORUM_NAMES = [u'贴图秀', u'缘来是你']
+subforum_name = SUBFORUM_NAMES[1]
+save_homepath = os.path.join('..', subforum_name)
+if not os.path.exists(save_homepath):
+    os.mkdir(save_homepath)
 
 
+MAX_PAGES = 5
 ### 获取主论坛地址
 print 'start get_forum_links...'
 forums = utils.get_forum_links(session, MAIN_URL)
@@ -34,18 +39,16 @@ for name,link in forums.items():
     print 'start get_sub_forum_links...'
     sub_forums = utils.get_sub_forum_links(session, forum_url)
     for sub_name, sub_link in sub_forums.items():
-        if sub_name!=SUBFORUM_NAME:
+        if sub_name!=subforum_name:
             continue
+        print 'start crawl subforum', subforum_name
         subforum_url = HOME_URL + sub_link
 
         # 获取帖子地址
         print 'start get_post_link...'
-        posts = utils.get_post_links(session, subforum_url)
-        for cur_page, title, post_link in posts:
-            if cur_page>1: # 只抓第一页的帖子
-                break
+        posts = utils.get_post_links(session, subforum_url, MAX_PAGES) # 只抓 MAX_POSTS 页内帖子
+        for title, post_link in posts:
             post_url = HOME_URL + post_link
-
             # 获取图片地址
             img_url = utils.get_img_links(session, post_url)
             if len(img_url)==0:
@@ -53,7 +56,7 @@ for name,link in forums.items():
                 continue
 
             # 创建以帖子名的文件夹
-            dirname = os.path.join(SAVE_HOME_PATH, title.replace('/', '_'))
+            dirname = os.path.join(save_homepath, valid_filename(title))
             if not os.path.exists(dirname):
                 os.mkdir(dirname)
             # 多线程下载
