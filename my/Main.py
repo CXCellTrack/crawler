@@ -11,11 +11,10 @@ import threading as th
 from my.login import login_in, HOME_URL, MAIN_URL
 from my import utils
 
+
 #################################################################
 # 获取会话，登录主界面
 #################################################################
-
-
 session = login_in()
 # 选择爬哪个子论坛
 SUBFORUM_NAMES = [u'贴图秀', u'缘来是你']
