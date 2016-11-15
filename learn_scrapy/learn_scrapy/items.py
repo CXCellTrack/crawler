@@ -10,5 +10,7 @@ import scrapy
 
 class LearnScrapyItem(scrapy.Item):
     # define the fields for your item here like:
+    title = scrapy.Field()
+    sub_title = scrapy.Field()
     link = scrapy.Field()
-    desc = scrapy.Field()
+    
