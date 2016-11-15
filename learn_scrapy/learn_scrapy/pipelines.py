@@ -8,4 +8,5 @@
 
 class LearnScrapyPipeline(object):
     def process_item(self, item, spider):
+        item.update({'title': 'Dmoz'})
         return item

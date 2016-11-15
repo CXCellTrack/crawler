@@ -8,9 +8,16 @@
 import scrapy
 
 
-class LearnScrapyItem(scrapy.Item):
+class DmozItem(scrapy.Item):
     # define the fields for your item here like:
     title = scrapy.Field()
     sub_title = scrapy.Field()
     link = scrapy.Field()
-    
+
+
+class WeiboItem(scrapy.Item):
+    pass
+
+
+class BuaabtItem(scrapy.Item):
+    pass

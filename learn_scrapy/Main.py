@@ -7,5 +7,5 @@ Created on Tue Nov 15 15:12:31 2016
 
 from scrapy import cmdline 
 
-cmd = 'scrapy crawl dmoz -o res.json'
+cmd = 'scrapy crawl dmoz -L INFO -o res.json'
 cmdline.execute(cmd.split())
