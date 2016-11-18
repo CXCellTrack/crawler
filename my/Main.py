@@ -78,8 +78,3 @@ for name,link in forums.items():
                 thread.join()
             print title, 'done!'
 
-
-
-
-
-

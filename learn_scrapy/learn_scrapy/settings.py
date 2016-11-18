@@ -20,7 +20,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko
              'Chrome/50.0.2661.102 Safari/537.36'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = False
+ROBOTSTXT_OBEY = False # 不遵守网页的反爬约定
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -28,7 +28,7 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+# DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
@@ -55,9 +55,9 @@ ROBOTSTXT_OBEY = False
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+# DOWNLOADER_MIDDLEWARES = {
 #    'learn_scrapy.middlewares.MyCustomDownloaderMiddleware': 543,
-#}
+# }
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
@@ -67,9 +67,17 @@ ROBOTSTXT_OBEY = False
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-   'learn_scrapy.pipelines.LearnScrapyPipeline': 300,
-}
+# ITEM_PIPELINES = {
+    # 'learn_scrapy.pipelines.DmozPipeline': 300,
+    # 'scrapy.pipelines.buaa_images.ImagesPipeline': 1
+    # 'learn_scrapy.pipelines.MyImagesPipeline': 10
+# }
+# 图片存储位置
+# IMAGES_STORE = 'images_store'
+# 缩略图格式
+# IMAGES_THUMBS = {
+#     'small': (50, 50),
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

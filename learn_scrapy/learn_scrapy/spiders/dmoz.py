@@ -8,6 +8,8 @@ class DmozSpider(scrapy.Spider):
     allowed_domains = ["dmoz.org"]
     start_urls = ['http://www.dmoz.org']
 
+    custom_settings = {'ITEM_PIPELINES': {'learn_scrapy.pipelines.DmozPipeline': 300}}
+
 
     def parse(self, response):
         asides = response.xpath('//*[@id="category-section"]/aside')
@@ -18,17 +20,22 @@ class DmozSpider(scrapy.Spider):
                 print 'process %s..' % title
                 link = sel.xpath('@href').extract_first()
                 full_link = response.urljoin(link)
-                yield scrapy.Request(full_link, callback=self.parse_title)
+                # 设定数据，通过meta传递数据
+                item = DmozItem()
+                item['title'] = title
+                item['content'] = []
+                yield scrapy.Request(full_link, callback=self.parse_title, meta={'item': item})
 
 
     def parse_title(self, response):
         divs = response.xpath('//*[@id="cat-list-content-main"]/div')
+        item = response.meta['item']
         for sel in divs:
-            item = DmozItem()
-            item['link'] = sel.xpath('a/@href').extract_first()
+            link = sel.xpath('a/@href').extract_first()
             texts = map(lambda x: x.encode('utf-8').strip(), sel.xpath('a/div/text()').extract())
-            item['sub_title'] = filter(lambda x: x, texts)[0].decode('utf-8')
-            yield item
+            sub_title = filter(lambda x: x, texts)[0].decode('utf-8')
+            item['content'].append({'link':link, 'sub_title':sub_title})
+        yield item
 
 
 

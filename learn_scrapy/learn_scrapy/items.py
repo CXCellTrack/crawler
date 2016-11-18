@@ -10,14 +10,26 @@ import scrapy
 
 class DmozItem(scrapy.Item):
     # define the fields for your item here like:
+    spider = scrapy.Field()
     title = scrapy.Field()
-    sub_title = scrapy.Field()
-    link = scrapy.Field()
+    content = scrapy.Field()
 
 
 class WeiboItem(scrapy.Item):
-    pass
+    name = scrapy.Field() # 姓名
+    user_info = scrapy.Field() # 基本资料 # 微博总数 # 粉丝数 # 关注数
+    weibo_info = scrapy.Field() # 微博信息
+    # 保存图片
+    file_urls = scrapy.Field()
+    files = scrapy.Field()
+    image_datas = scrapy.Field()
 
 
 class BuaabtItem(scrapy.Item):
-    pass
+    image_urls = scrapy.Field()
+    images = scrapy.Field()
+    image_paths = scrapy.Field()
+    forum = scrapy.Field()
+    postname = scrapy.Field()
+
+
