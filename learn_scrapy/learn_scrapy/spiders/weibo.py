@@ -174,7 +174,7 @@ class WeiboSpider(CrawlSpider):
             item = copy.deepcopy(response.meta['item']) # 使用自带的copy()方法并非深复制
             post_id += 1
             print u'process %s ———— post %s...' % (item['name'], post_id)
-            content = '\n'.join(post.xpath('./div[1]//text() | ./div[3]//text()').extract())
+            content = '\n'.join(post.xpath('./div//text()').extract())
             imgs_link = post.xpath('./div[2]//a/img/parent::a/@href').extract_first()
             item['weibo_info'].update({'post_id': post_id,
                                        'content': content,
