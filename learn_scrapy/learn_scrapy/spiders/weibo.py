@@ -13,9 +13,10 @@ class WeiboSpider(CrawlSpider):
     name = "weibo"
     allowed_domains = ["weibo.cn"]
     start_urls = 'http://weibo.cn/'
-    my_cookies = "_T_WM=d6cab8dc7d2170c585ee1e9dbbb03940; ALF=1481710019; SCF=AtM3q-7zU0uhwItTp0WWnRdZH5dxcX9tTOboKf4-QLQV8J8Ox6leuaUUvgPQogwJr5w97S5GZFbqvMID6C0JByA.; SUB=_2A251Lcd_DeTxGedI6FIV9SrPwz-IHXVW0ek3rDV6PUNbktBeLRfskW2VE_5Naspu_t6QuQqTw9uzMFIanQ..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5VkKx12wC8CA3iA9K-w5oU5JpX5KMhUgL.Fo2ce05XSKB01he2dJLoIp9VdfvadJHkMcyaUgp.PciLPNUDMcHE; SUHB=0ft4ePXiieJP_x; SSOLoginState=1479128879"
-
-    MAX_PAGE = 5 # 最大爬取微博页数
+    my_cookies = {
+        'lab': "_T_WM=d6cab8dc7d2170c585ee1e9dbbb03940; ALF=1481710019; SCF=AtM3q-7zU0uhwItTp0WWnRdZH5dxcX9tTOboKf4-QLQV8J8Ox6leuaUUvgPQogwJr5w97S5GZFbqvMID6C0JByA.; SUB=_2A251Lcd_DeTxGedI6FIV9SrPwz-IHXVW0ek3rDV6PUNbktBeLRfskW2VE_5Naspu_t6QuQqTw9uzMFIanQ..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5VkKx12wC8CA3iA9K-w5oU5JpX5KMhUgL.Fo2ce05XSKB01he2dJLoIp9VdfvadJHkMcyaUgp.PciLPNUDMcHE; SUHB=0ft4ePXiieJP_x; SSOLoginState=1479128879",
+        'hp': "_T_WM=40c8baecc632fb2d8755fb1b0a060d66; ALF=1482157834; SCF=AtG9Uehb0OvpJd62_PEDs99T1xUXbAMbGMYEa7i2ZI5wYbVzPIaUDCsjlYkXN-K87gU_7_SI7GlcXjZmIRmTQGM.; SUB=_2A251NBJFDeTxGedI6FIV9SrPwz-IHXVW1r4NrDV6PUJbktBeLUrdkW0YddtkT_QaiITMt9EbGa1G6W4tbg..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5VkKx12wC8CA3iA9K-w5oU5JpX5o2p5NHD95QpSoe7Sh-Xe0n0Ws4DqcjgdJvkdc4LPNSQdNHj98vb9HvNIPSLMntt; SUHB=0G0_AgRSn3Y2Ei; SSOLoginState=1479565846"
+    }
 
     custom_settings = {
         'FILES_STORE': 'weibo_data',
@@ -27,15 +28,26 @@ class WeiboSpider(CrawlSpider):
 
     rules = (
         # 提取匹配'follow'和'fans'的链接并跟进链接(没有callback意味着follow默认为True)
-        Rule(LinkExtractor(allow=('/\d+/follow', )), callback='parse_follow_and_fans'), # '/\d+/fans'
+        Rule(LinkExtractor(allow=('/\d+/follow', '/\d+/fans')), callback='parse_follow_and_fans'),
     )
+
+    # =========================================================== #
+    # 重写init方法，加入命令行参数
+    # =========================================================== #
+    def __init__(self, user_name=None, max_page=1, *a, **kw):
+        super(WeiboSpider, self).__init__(*a, **kw)
+        self.MAX_PAGE = int(max_page) # 最大爬取微博页数
+        self.USER_NAME = user_name # 爬取的用户名
 
     # =========================================================== #
     # 将document.cookies由字符串转换为dict/jsr
     # =========================================================== #
-    def get_cookies(self):
+    @staticmethod
+    def get_cookies():
         cookies_dict = {}
-        for line in self.my_cookies.split(';'):
+        import platform
+        # 判断在实验室机器上还是hp笔记本上
+        for line in WeiboSpider.my_cookies[platform.node()].split(';'):
             # 其设置为1就会把字符串拆分成2份
             name, value = line.strip().split('=', 1)
             cookies_dict[name] = value
@@ -52,7 +64,7 @@ class WeiboSpider(CrawlSpider):
     def get_user_name(td):
         isVip = td.xpath('img/@alt').extract_first()
         name = td.xpath('a[1]/text()').extract_first()
-        return '%s-[V]' % name if isVip else name
+        return name, name+'-[V]'*bool(isVip)
 
 
     def parse_follow_and_fans(self, response):
@@ -66,14 +78,15 @@ class WeiboSpider(CrawlSpider):
         for td in tds:
             ## 用户信息字典
             item = WeiboItem()
-            item['name'] = self.get_user_name(td)
+            name, name_V = self.get_user_name(td)
+            item['name'] = name_V
             item['user_info'] = {}
             item['weibo_info'] = {} # 微博内容
             item['file_urls'] = []
 
             link = td.xpath('a/@href').extract_first()
             ## 通过meta传递item # debug时先抓某一个人的
-            if item['name'] not in [u'北娃大王-[V]', u'0木头-木头0']:
+            if name!=self.USER_NAME:
                 continue
             yield scrapy.Request(url=link, callback=self.parse_user,
                                  meta={'item': item})
@@ -120,6 +133,7 @@ class WeiboSpider(CrawlSpider):
     # =========================================================== #
     def parse_user_verbose_info(self, response):
         item = response.meta['item']
+        print u'process %s get user info...' % item['name']
         ## 得到头像地址
         headimg = response.xpath('//body/div[@class="c"][1]/img/@src').extract_first()
         item['user_info']['headimg'] = headimg
@@ -190,15 +204,12 @@ class WeiboSpider(CrawlSpider):
     # =========================================================== #
     def get_post_imgs(self, response):
         item = response.meta['item']
-        ## debug时限制帖子id
-        # if response.meta['item']['weibo_info']['post_id']!=1:
-        #     return
-        # from scrapy.shell import inspect_response
-        # inspect_response(response, self)
+        ## 获取图片连接
         img_link = response.xpath('//body/div//img/@src').extract_first()
         ni_link = response.xpath(u'//body/div//a[text()="下一张"]/@href').extract_first()
         ## 图片加入下载库
-        item['file_urls'].append(img_link) # 使用imagePipeline无法下载gif格式的！
+        if img_link:
+            item['file_urls'].append(img_link) # 使用imagePipeline无法下载gif格式的！
         ## 获取下一张图片
         if not ni_link:
             yield item

@@ -49,11 +49,14 @@ class WeiboPipeline(object):
         assert spider.name=='weibo'
         ## 获取设置内容
         store_uri = spider.settings['FILES_STORE']
+        ## 统计最后得到的图片数目
+        img_num = len(filter(lambda x:x[1]!=item['user_info']['headimg'],
+                             item['image_datas']))
         ## 以user_name、post_id建立目录
         user_name = item['name']
         post_id = item['weibo_info']['post_id']
         user_dir = os.path.join(store_uri, user_name)
-        post_dir = os.path.join(user_dir, 'post_'+str(post_id))
+        post_dir = os.path.join(user_dir, 'post_%s'% post_id + ('[%sP]'% img_num)*bool(img_num))
         for dir_ in [user_dir, post_dir]:
             if not os.path.exists(dir_):
                 os.makedirs(dir_)
@@ -76,16 +79,14 @@ class WeiboPipeline(object):
                 f.write('%s' % item["weibo_info"]["content"])
 
         ## 将下载好的图片移动进去
-        # headimg_flag = False
         for path, url in item['image_datas']:
             src = os.path.join(store_uri, 'full', path)
             ## 帖子图片->post_dir，头像->user_dir
             if url==item['user_info']['headimg']:
-                # headimg_flag = True
                 objfile = os.path.join(user_dir, 'headimg.jpg')
             else:
                 objfile = os.path.join(post_dir, path)
-            ## 源文件存在，则移动过去
+            ## 目标文件不存在，则移动过去
             if not os.path.exists(objfile):
                 shutil.move(src, objfile)
         return item

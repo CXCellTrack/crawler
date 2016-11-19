@@ -17,8 +17,8 @@ from my import utils
 #################################################################
 session = login_in()
 # 选择爬哪个子论坛
-SUBFORUM_NAMES = [u'贴图秀', u'缘来是你']
-subforum_name = SUBFORUM_NAMES[1]
+SUBFORUM_NAMES = [u'贴图秀', u'缘来是你', u'跳蚤市场']
+subforum_name = SUBFORUM_NAMES[2]
 save_homepath = os.path.join('..', subforum_name)
 if not os.path.exists(save_homepath):
     os.mkdir(save_homepath)
@@ -27,7 +27,7 @@ if not os.path.exists(save_homepath):
 # =========================================================== #
 # 开始爬取
 # =========================================================== #
-MAX_PAGES = 5
+MAX_PAGES = 1
 ### 获取主论坛地址
 print 'start get_forum_links...'
 forums = utils.get_forum_links(session, MAIN_URL)

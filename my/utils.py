@@ -132,7 +132,7 @@ def download(session, url, dirname, picname):
         except:
             print 'retry download', download_tries, 'times...'
             download_tries += 1
-    print picname, 'successfully downloaded!'
+    print picname, 'download successfully!'
 
 
 # =========================================================== #
@@ -149,3 +149,4 @@ def valid_filename(name):
     for ch in r'\/:*?"<>|':
         name = name.replace(ch, '_')
     return name
+

@@ -13,6 +13,6 @@ DEBUG = 0
 if DEBUG:
     cmd = 'scrapy crawl %s -L DEBUG -o test.json' % crawl_name
 else:
-    cmd = 'scrapy crawl %s -L INFO' % crawl_name
+    cmd = u'scrapy crawl %s -L INFO -a user_name=北娃大王 -a max_page=10' % crawl_name
 
 cmdline.execute(cmd.split())
