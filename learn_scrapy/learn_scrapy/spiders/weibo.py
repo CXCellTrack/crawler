@@ -15,7 +15,7 @@ class WeiboSpider(CrawlSpider):
     start_urls = 'http://weibo.cn/'
     my_cookies = {
         'lab': "_T_WM=d6cab8dc7d2170c585ee1e9dbbb03940; ALF=1481710019; SCF=AtM3q-7zU0uhwItTp0WWnRdZH5dxcX9tTOboKf4-QLQV8J8Ox6leuaUUvgPQogwJr5w97S5GZFbqvMID6C0JByA.; SUB=_2A251Lcd_DeTxGedI6FIV9SrPwz-IHXVW0ek3rDV6PUNbktBeLRfskW2VE_5Naspu_t6QuQqTw9uzMFIanQ..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5VkKx12wC8CA3iA9K-w5oU5JpX5KMhUgL.Fo2ce05XSKB01he2dJLoIp9VdfvadJHkMcyaUgp.PciLPNUDMcHE; SUHB=0ft4ePXiieJP_x; SSOLoginState=1479128879",
-        'hp': "_T_WM=40c8baecc632fb2d8755fb1b0a060d66; ALF=1482157834; SCF=AtG9Uehb0OvpJd62_PEDs99T1xUXbAMbGMYEa7i2ZI5wYbVzPIaUDCsjlYkXN-K87gU_7_SI7GlcXjZmIRmTQGM.; SUB=_2A251NBJFDeTxGedI6FIV9SrPwz-IHXVW1r4NrDV6PUJbktBeLUrdkW0YddtkT_QaiITMt9EbGa1G6W4tbg..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5VkKx12wC8CA3iA9K-w5oU5JpX5o2p5NHD95QpSoe7Sh-Xe0n0Ws4DqcjgdJvkdc4LPNSQdNHj98vb9HvNIPSLMntt; SUHB=0G0_AgRSn3Y2Ei; SSOLoginState=1479565846"
+        'hp': "_T_WM=19f08baf8d3998861e729bd5483f4fc4; ALF=1482234133; SCF=Avimbx4nWZ2L7Nve9DPY-VOX_6XOvUGKoR_S2SxaIonv5yzJKRQ7HSic2LZgCYHq2SQo7N4VzCEOxOCxr4P2AV4.; SUB=_2A251Nfx7DeTxGedI6FIV9SrPwz-IHXVW2YQzrDV6PUJbktBeLVPukW1W5j9b2-0WqJ9ELFlO4maExrZsVA..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5VkKx12wC8CA3iA9K-w5oU5JpX5o2p5NHD95QpSoe7Sh-Xe0n0Ws4DqcjgdJvkdc4LPNSQdNHj98vb9HvNIPSLMntt; SUHB=0QSoZUMIn6-PH0"
     }
 
     custom_settings = {
@@ -38,6 +38,14 @@ class WeiboSpider(CrawlSpider):
         super(WeiboSpider, self).__init__(*a, **kw)
         self.MAX_PAGE = int(max_page) # 最大爬取微博页数
         self.USER_NAME = user_name # 爬取的用户名
+
+    # =========================================================== #
+    # 重写closed方法，在关闭爬虫后执行
+    # =========================================================== #
+    def closed(self, reason):
+        store_uri = self.settings['FILES_STORE']
+        import os, shutil
+        shutil.rmtree(os.path.join(store_uri,'full'))
 
     # =========================================================== #
     # 将document.cookies由字符串转换为dict/jsr
@@ -138,17 +146,11 @@ class WeiboSpider(CrawlSpider):
         headimg = response.xpath('//body/div[@class="c"][1]/img/@src').extract_first()
         item['user_info']['headimg'] = headimg
         item['file_urls'].append(headimg)
-        ## 选择"基本信息""工作经历""其他信息"三个节点后的div
+        ## 选择"基本信息""其他信息"2个节点后的div
         infos = response.xpath(u'//body/div[@class="tip" and '
-                               u'(text()="基本信息" or text()="工作经历" or text()="其他信息")]'
+                               u'(text()="基本信息" or text()="其他信息")]'
                                u'/following::div[1]')
         for i,info in enumerate(infos):
-            ## 单独处理"工作经历"
-            if i==1:
-                item['user_info'].update({
-                    u'工作经历': info.xpath('.//text()').extract_first()
-                })
-                continue
             ## 处理其他信息
             data = info.xpath('.//text()').re('.+:.+')
             item['user_info'].update(dict([x.split(':', 1) for x in data]))
@@ -195,8 +197,6 @@ class WeiboSpider(CrawlSpider):
                                  meta={'item': response.meta['item'],
                                        'cur_page': cur_page+1,
                                        'post_id': post_id+1})
-
-
 
 
     # =========================================================== #

@@ -33,3 +33,7 @@ class BuaabtItem(scrapy.Item):
     postname = scrapy.Field()
 
 
+class DoubanItem(scrapy.Item):
+    image_urls = scrapy.Field()
+    images = scrapy.Field()
+    title = scrapy.Field()

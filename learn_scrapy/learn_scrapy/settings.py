@@ -40,12 +40,10 @@ ROBOTSTXT_OBEY = False # 不遵守网页的反爬约定
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
-# DEFAULT_REQUEST_HEADERS = {
+#DEFAULT_REQUEST_HEADERS = {
 #   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 #   'Accept-Language': 'en',
-#   'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) '
-#                 'Chrome/50.0.2661.102 Safari/537.36'
-# }
+#}
 
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
@@ -69,8 +67,7 @@ ROBOTSTXT_OBEY = False # 不遵守网页的反爬约定
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 # ITEM_PIPELINES = {
     # 'learn_scrapy.pipelines.DmozPipeline': 300,
-    # 'scrapy.pipelines.buaa_images.ImagesPipeline': 1
-    # 'learn_scrapy.pipelines.MyImagesPipeline': 10
+    # 'scrapy.pipelines.images.ImagesPipeline': 1
 # }
 # 图片存储位置
 # IMAGES_STORE = 'images_store'
