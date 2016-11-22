@@ -22,7 +22,7 @@ class WeiboSpider(CrawlSpider):
         'FILES_STORE': 'weibo_data',
         'ITEM_PIPELINES': {
             'learn_scrapy.pipelines.WeiboPipeline': 300,
-            'learn_scrapy.pipelines.MyImagesPipeline': 10
+            'learn_scrapy.pipelines.MyFilesPipeline': 10
         }
     }
 

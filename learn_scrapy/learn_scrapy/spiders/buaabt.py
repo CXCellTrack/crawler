@@ -13,7 +13,7 @@ class BuaabtSpider(scrapy.Spider):
         'IMAGES_STORE':'buaa_images',
         'ITEM_PIPELINES':{
             'learn_scrapy.pipelines.BuaabtPipeline':300,
-            'learn_scrapy.pipelines.MyImagesPipeline':10
+            'learn_scrapy.pipelines.MyFilesPipeline':10
         }
     }
     max_page = 1

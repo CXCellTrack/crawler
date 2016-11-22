@@ -11,8 +11,9 @@ import shutil
 
 import time
 from scrapy.exceptions import DropItem
-from scrapy.pipelines.images import FilesPipeline
-# from scrapy.utils.project import get_project_settings # 获取settings.py中的设置
+from scrapy.pipelines.images import ImagesPipeline
+from scrapy.pipelines.files import FilesPipeline
+from scrapy.utils.project import get_project_settings # 获取settings.py中的设置
 
 
 class DmozPipeline(object):
@@ -95,7 +96,7 @@ class WeiboPipeline(object):
 # =========================================================== #
 # 使用了ImagesPipeline来进行图片下载（重写item_completed方法）
 # =========================================================== #
-class MyImagesPipeline(FilesPipeline):
+class MyFilesPipeline(FilesPipeline):
     def get_media_requests(self, item, info):
         ## 设置访问延迟 （可解决每次访问能够成功，但是下载总是失败的问题）
         time.sleep(0.5)
@@ -110,3 +111,22 @@ class MyImagesPipeline(FilesPipeline):
             # 下载成功的名称和url路径
             item['image_datas'] = image_datas
         return item
+
+
+# =========================================================== #
+# 重写ImagesPipeline，使之可以接受用户指定图片地址
+# =========================================================== #
+class MyImagesPipeline(ImagesPipeline):
+    ## 可在image_paths中写入存储地址
+    def get_media_requests(self, item, info):
+        return [scrapy.Request(x, meta={'path': path}) for (x, path)
+                in zip(item.get(self.images_urls_field, []), item.get('image_paths', []))]
+
+    ## 重写file_path方法
+    def file_path(self, request, response=None, info=None):
+        # print response.meta['path']
+        return 'full/%s' % request.meta['path']
+
+    ## 重写thumb_path方法
+    def thumb_path(self, request, thumb_id, response=None, info=None):
+        return 'thumbs/%s/%s.jpg' % (thumb_id, request.meta['path'])

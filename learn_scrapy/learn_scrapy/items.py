@@ -36,4 +36,5 @@ class BuaabtItem(scrapy.Item):
 class DoubanItem(scrapy.Item):
     image_urls = scrapy.Field()
     images = scrapy.Field()
+    image_paths = scrapy.Field()
     title = scrapy.Field()
