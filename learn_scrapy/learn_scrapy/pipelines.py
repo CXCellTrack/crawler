@@ -129,4 +129,4 @@ class MyImagesPipeline(ImagesPipeline):
 
     ## 重写thumb_path方法
     def thumb_path(self, request, thumb_id, response=None, info=None):
-        return 'thumbs/%s/%s.jpg' % (thumb_id, request.meta['path'])
+        return 'thumbs/%s/%s' % (thumb_id, request.meta['path'])
